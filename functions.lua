@@ -329,6 +329,7 @@ end)
 function fishing_setting.func.timetostr(time)
 	local countdown = time
 	local answer = ""
+    
 	if countdown >= 3600 then
 		local hours = math.floor(countdown / 3600)
 		countdown = countdown % 3600
@@ -591,6 +592,7 @@ minetest.register_chatcommand("contest_start", {
 		if not duration then
 			duration = 3600
 		end
+        if duration == "" then duration = 3600 end
 		fishing_setting.contest["nb_fish"] = {}
 		fishing_setting.func.start_contest(duration)
 		return true, ("Contest started, duration:%d sec."):format(duration)
@@ -618,6 +620,7 @@ function fishing_setting.func.planned_tick()
 			local hour = plan.hour
 			local min = plan.min
 			local duration = plan.duration
+            if duration == "" then duration = 3600 end
 			local time = os.date("*t",os.time())
 			if (wday == 0 or wday == time.wday) then
 				if time.hour == hour and time.min == min then
@@ -679,7 +682,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			fishing_setting.contest["contest"] = fishing_setting.tmp_setting["contest"]
 			fishing_setting.contest["bobber_nb"] = fishing_setting.tmp_setting["bobber_nb"]
 			if progress == false and fishing_setting.tmp_setting["contest"] == true then
-				local duration = fishing_setting.func.timetostr(fishing_setting.contest["duration"])
+				--local duration = fishing_setting.func.timetostr(fishing_setting.contest["duration"])
+                local duration = fishing_setting.contest["duration"]
+                if duration == "" then duration = 3600 end
 				fishing_setting.func.start_contest(duration)
 			elseif progress == true and fishing_setting.tmp_setting["contest"] == false then
 				fishing_setting.func.end_contest()
@@ -811,6 +816,7 @@ end
 local UPDATE_TIME = 1
 function fishing_setting.func.tick()
 	if fishing_setting.contest["contest"] ~= nil and fishing_setting.contest["contest"] == true then
+        if duration == "" then duration = 3600 end
 		fishing_setting.contest["duration"] = fishing_setting.contest["duration"] - UPDATE_TIME
 		if fishing_setting.contest["duration"] < 30 and fishing_setting.contest["warning_said"] ~= true then
 			minetest.chat_send_all(fishing_setting.func.S("WARNING, Fishing contest will finish in 30 seconds."))
